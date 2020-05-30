@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
@@ -18,11 +19,15 @@ public class Manager : MonoBehaviour
     public GameObject EndGameMenu;
     public GameObject VictoryText;
     public GameObject GameOverText;
+    public GameObject stats;
 
     public bool tutorialEnabled = true;
 
     private Tutorial tutorialObject;
     private Gameboard gameboardObject;
+
+    public Text numberOfVictories;
+    public Text numberOfDefeats;
 
     private void OnEnable()
     {
@@ -44,6 +49,17 @@ public class Manager : MonoBehaviour
         tutorialObject = FindObjectOfType<Tutorial>();
         gameboardObject = FindObjectOfType<Gameboard>();
         tutorialEnabled = PlayerPrefs.GetInt(Constants.TutorialComplete, 0) == 0;
+        UpdateStats();
+    }
+
+    private void UpdateStats()
+    {
+        int wins = PlayerPrefs.GetInt(Constants.Victories, 0);
+        int losses = PlayerPrefs.GetInt(Constants.Defeats, 0);
+
+        stats.SetActive(!(wins == 0 && losses == 0));
+        numberOfVictories.text = wins.ToString();
+        numberOfDefeats.text = losses.ToString();
     }
 
     public void OnGameSetup()
