@@ -29,12 +29,26 @@ public class Ads : MonoBehaviour, IUnityAdsListener
 
     private void OnGameStart(object userData)
     {
-        StartCoroutine(ShowAdWhenReady());
+        if (Manager.Instance.tutorialEnabled)
+        {
+
+        }
+        else
+        {
+            StartCoroutine(ShowAdWhenReady());
+        }
     }
 
     private void OnEndGame(object userData)
     {
-        StartCoroutine(ShowAdWhenReady());
+        if (Manager.Instance.tutorialEnabled)
+        {
+
+        }
+        else
+        {
+            StartCoroutine(ShowAdWhenReady());
+        }
     }
 
     IEnumerator ShowAdWhenReady()

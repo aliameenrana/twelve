@@ -77,7 +77,15 @@ public class Gameboard : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         EventManager.TriggerEvent(EventNames.OnGeetisSpawned, null);
-        BeginTurn(manager.computerPlayer);
+
+        if (Manager.Instance.tutorialEnabled)
+        {
+            Manager.Instance.BeginTutorial();
+        }
+        else
+        {
+            BeginTurn(manager.computerPlayer);
+        }
     }
 
     public Slot GetClosestSlot(Vector2 position)
@@ -119,7 +127,7 @@ public class Gameboard : MonoBehaviour
         return currentGeeti;
     }
 
-    private void BeginTurn(Player player)
+    public void BeginTurn(Player player)
     {
         player.playerTurn = true;
         EventManager.TriggerEvent(EventNames.OnBeginTurn, player);

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -27,6 +28,7 @@ public class Geeti : MonoBehaviour
         }
 
         currentSlot.ShowValidSlots();
+        EventManager.TriggerEvent(EventNames.OnBeginDrag, currentSlot);
     }
 
     public void OnDrag(BaseEventData eventData)
@@ -65,10 +67,12 @@ public class Geeti : MonoBehaviour
             newSlot.Assign(this);
             this.Assign(newSlot);
             hasChangedSlots = true;
+            EventManager.TriggerEvent(EventNames.OnEndDrag, newSlot);
         }
         else
         {
             SnapToSlot();
+            EventManager.TriggerEvent(EventNames.OnEndDrag, null);
         }
         OnEndMove();
         EventManager.TriggerEvent(EventNames.OnStopGlow, null);
@@ -115,6 +119,22 @@ public class Geeti : MonoBehaviour
     {
         Gameboard.Instance.RemoveGeeti(this);
         currentSlot.UnAssign();
+        //Destroy(gameObject);
+        StartCoroutine(BlinkThenDestroy());
+    }
+
+    IEnumerator BlinkThenDestroy()
+    {
+        Image image = GetComponent<Image>();
+        image.enabled = false;
+        yield return new WaitForSeconds(0.2f);
+        image.enabled = true;
+        yield return new WaitForSeconds(0.2f);
+        image.enabled = false;
+        yield return new WaitForSeconds(0.2f);
+        image.enabled = true;
+        yield return new WaitForSeconds(0.2f);
+        image.enabled = false;
         Destroy(gameObject);
     }
 
@@ -148,7 +168,8 @@ public class Geeti : MonoBehaviour
                     //Has one more move. Can either end turn or not. Show prompt
                     if (this.player.playerType == PlayerType.Computer)
                     {
-                        Gameboard.Instance.TakeAITurn();
+                        Action action = new Action(() => Gameboard.Instance.TakeAITurn());
+                        StartCoroutine(Utilities.Run(action, 1.5f));
                     }
                 }
             }
@@ -167,13 +188,13 @@ public class Geeti : MonoBehaviour
     public Slot GetBestKillingSlot()
     {
         List<Slot> killingSlots = currentSlot.GetKillableSlots();
-        return killingSlots[Random.Range(0, killingSlots.Count)];
+        return killingSlots[UnityEngine.Random.Range(0, killingSlots.Count)];
     }
 
     public Slot GetBestMovingSlot()
     {
         List<Slot> movingSlots = currentSlot.GetEmptyValidSlots();
-        return movingSlots[Random.Range(0, movingSlots.Count)];
+        return movingSlots[UnityEngine.Random.Range(0, movingSlots.Count)];
     }
 
     public List<Slot> GetSafeMovingSlots()

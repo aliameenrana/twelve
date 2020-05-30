@@ -67,6 +67,7 @@ public class Glow : MonoBehaviour
                     {
                         timer = 0f;
                         image.color = new Color(1f, 1f, 1f, 0f);
+                        image.transform.localScale = Vector3.one;
                         state = GlowState.None;
                     }
                 }
@@ -78,10 +79,12 @@ public class Glow : MonoBehaviour
                     if (losingAlpha)
                     {
                         image.color = Color.Lerp(startColor, endColor, Mathf.PingPong(timer, 1f));
+                        image.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.one * 0.75f, Mathf.PingPong(timer, 1f));
                     }
                     else
                     {
                         image.color = Color.Lerp(endColor, startColor, Mathf.PingPong(timer, 1f));
+                        image.transform.localScale = Vector3.Lerp(Vector3.one * 0.75f, Vector3.one, Mathf.PingPong(timer, 1f));
                     }
                     
                     if (timer > 1f)

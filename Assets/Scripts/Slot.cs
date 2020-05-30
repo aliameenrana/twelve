@@ -38,7 +38,7 @@ public class Slot : MonoBehaviour
             if (item.IsEmptySlot())
             {
                 //item.GetComponent<Image>().color = Color.green;
-                item.BeginGlow(GlowColor.Green);
+                item.BeginGlow(GlowColor.White);
             }
         }
 
