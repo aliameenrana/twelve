@@ -6,19 +6,27 @@ using UnityEngine.UI;
 public class Manager : MonoBehaviour
 {
     public static Manager Instance { get; set; }
+    /// <summary>
+    /// Human in a player vs computer game
+    /// </summary>
     [System.NonSerialized]
-    public Player computerPlayer;
+    public Player player1;
+    /// <summary>
+    /// Computer in a player vs computer game
+    /// </summary>
     [System.NonSerialized]
-    public Player humanPlayer;
+    public Player player2;
 
-    public PlayerPanel humanPanel;
-    public PlayerPanel computerPanel;
+    public PlayerPanel player1Panel;
+    public PlayerPanel player2Panel;
 
     public GameObject MainMenu;
     public GameObject Gameboard;
     public GameObject EndGameMenu;
     public GameObject VictoryText;
     public GameObject GameOverText;
+    public GameObject Player1VictoryText;
+    public GameObject Player2VictoryText;
     public GameObject stats;
 
     public bool tutorialEnabled = true;
@@ -28,6 +36,9 @@ public class Manager : MonoBehaviour
 
     public Text numberOfVictories;
     public Text numberOfDefeats;
+
+    public Sprite computerIcon;
+    public Sprite humanIcon;
 
     private void OnEnable()
     {
@@ -48,7 +59,7 @@ public class Manager : MonoBehaviour
         Instance = this;
         tutorialObject = FindObjectOfType<Tutorial>();
         gameboardObject = FindObjectOfType<Gameboard>();
-        tutorialEnabled = PlayerPrefs.GetInt(Constants.TutorialComplete, 0) == 0;
+        //tutorialEnabled = PlayerPrefs.GetInt(Constants.TutorialComplete, 0) == 0;
         UpdateStats();
     }
 
@@ -64,16 +75,26 @@ public class Manager : MonoBehaviour
 
     public void OnGameSetup()
     {
-        computerPlayer = CreatePlayer(PlayerType.Computer, computerPanel);
-        humanPlayer = CreatePlayer(PlayerType.Human, humanPanel);
+        player2 = CreatePlayer(PlayerType.Computer, player2Panel, "Computer");
+        player1 = CreatePlayer(PlayerType.Human, player1Panel, "Human");
         MainMenu.SetActive(false);
         Gameboard.SetActive(true);
         EventManager.TriggerEvent(EventNames.OnSpawnGeetis, null);
     }
 
-    private Player CreatePlayer(PlayerType type, PlayerPanel panel)
+    public void OnGameSetupHumanAgainstHuman()
+    {
+        player2 = CreatePlayer(PlayerType.Human, player2Panel, "Player 2");
+        player1 = CreatePlayer(PlayerType.Human, player1Panel, "Player 1");
+        MainMenu.SetActive(false);
+        Gameboard.SetActive(true);
+        EventManager.TriggerEvent(EventNames.OnSpawnGeetis, null);
+    }
+
+    private Player CreatePlayer(PlayerType type, PlayerPanel panel, string name)
     {
         Player player = new Player();
+        player.playerName = name;
         player.playerType = type;
         panel.assignedPlayer = player;
         return player;
@@ -81,24 +102,40 @@ public class Manager : MonoBehaviour
 
     private void OnEndGame(object userData)
     {
-        bool win = ((Player)userData).playerType == PlayerType.Human;
-        VictoryText.SetActive(win);
-        GameOverText.SetActive(!win);
-        EndGameMenu.SetActive(true);
-        if (win)
+        VictoryText.SetActive(false);
+        GameOverText.SetActive(false);
+        Player1VictoryText.SetActive(false);
+        Player2VictoryText.SetActive(false);
+
+        if (Manager.Instance.player1.playerType != Manager.Instance.player2.playerType) 
         {
-            int victories = PlayerPrefs.GetInt(Constants.Victories, 0);
-            victories++;
-            PlayerPrefs.SetInt(Constants.Victories, victories);
-            EventManager.TriggerEvent(EventNames.OnVictory, null);
+            bool win = ((Player)userData).playerType == PlayerType.Human;
+            VictoryText.SetActive(win);
+            GameOverText.SetActive(!win);
+            if (win)
+            {
+                int victories = PlayerPrefs.GetInt(Constants.Victories, 0);
+                victories++;
+                PlayerPrefs.SetInt(Constants.Victories, victories);
+                EventManager.TriggerEvent(EventNames.OnVictory, null);
+            }
+            else
+            {
+                int losses = PlayerPrefs.GetInt(Constants.Defeats, 0);
+                losses++;
+                PlayerPrefs.SetInt(Constants.Defeats, losses);
+                EventManager.TriggerEvent(EventNames.OnDefeat, null);
+            }
         }
         else
         {
-            int losses = PlayerPrefs.GetInt(Constants.Defeats, 0);
-            losses++;
-            PlayerPrefs.SetInt(Constants.Defeats, losses);
-            EventManager.TriggerEvent(EventNames.OnDefeat, null);
+            bool player1Wins = ((Player)userData) == Manager.Instance.player1;
+            Player1VictoryText.SetActive(player1Wins);
+            Player2VictoryText.SetActive(!player1Wins);
+
+            EventManager.TriggerEvent(EventNames.OnVictory, null);
         }
+        EndGameMenu.SetActive(true);
     }
 
     public void BeginTutorial()
@@ -123,7 +160,7 @@ public class Manager : MonoBehaviour
             case TutorialStage.EmptySlotIntro:
                 break;
             case TutorialStage.FirstComputerCompleteMove:
-                gameboardObject.BeginTurn(computerPlayer);
+                gameboardObject.BeginTurn(player2);
                 break;
             case TutorialStage.HumanMoveBegin:
                 break;

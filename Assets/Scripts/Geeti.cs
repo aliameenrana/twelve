@@ -76,6 +76,7 @@ public class Geeti : MonoBehaviour
         }
         OnEndMove();
         EventManager.TriggerEvent(EventNames.OnStopGlow, null);
+        EventManager.TriggerEvent(EventNames.OnPlaceGeeti, null);
     }
 
     public void OnEndAIDrag(Vector2 position)
@@ -119,7 +120,6 @@ public class Geeti : MonoBehaviour
     {
         Gameboard.Instance.RemoveGeeti(this);
         currentSlot.UnAssign();
-        //Destroy(gameObject);
         StartCoroutine(BlinkThenDestroy());
     }
 
@@ -127,13 +127,13 @@ public class Geeti : MonoBehaviour
     {
         Image image = GetComponent<Image>();
         image.enabled = false;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.08f);
         image.enabled = true;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.08f);
         image.enabled = false;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.08f);
         image.enabled = true;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.08f);
         image.enabled = false;
         Destroy(gameObject);
     }
@@ -157,7 +157,7 @@ public class Geeti : MonoBehaviour
     {
         if (hasChangedSlots)
         {
-            if (hasKilled)
+            if (hasKilled && CanKill())
             {
                 if (Gameboard.Instance.GameEndCheck())
                 {
@@ -171,6 +171,18 @@ public class Geeti : MonoBehaviour
                         Action action = new Action(() => Gameboard.Instance.TakeAITurn());
                         StartCoroutine(Utilities.Run(action, 1.5f));
                     }
+                }
+            }
+            else if (hasKilled && !CanKill())
+            {
+                if (Gameboard.Instance.GameEndCheck())
+                {
+
+                }
+                else
+                {
+                    //End Turn automatically
+                    EventManager.TriggerEvent(EventNames.OnEndTurn, this.player);
                 }
             }
             else
@@ -201,7 +213,7 @@ public class Geeti : MonoBehaviour
     {
         List<Slot> movingSlots = currentSlot.GetEmptyValidSlots();
         List<Slot> safeMovingSlots = new List<Slot>();
-        safeMovingSlots = movingSlots.FindAll(o => o.IsSafe(currentSlot, o, Manager.Instance.computerPlayer));
+        safeMovingSlots = movingSlots.FindAll(o => o.IsSafe(currentSlot, o, Manager.Instance.player2));
         return safeMovingSlots;
     }
 }

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Advertisements;
 
-public class Ads : MonoBehaviour, IUnityAdsListener
+public class Ads : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoadListener, IUnityAdsShowListener
 {
     public bool isTestMode = true;
     public string videoAdID = "video";
+    public string bannerAdID = "bottomBanner";
 
     private const string gameID = "3538581";
 
@@ -24,7 +25,9 @@ public class Ads : MonoBehaviour, IUnityAdsListener
 
     private void Start()
     {
-        Advertisement.Initialize("3538581", isTestMode);
+        Advertisement.Initialize("3538581", isTestMode, this);
+
+        StartCoroutine(ShowBannerWhenReady());
     }
 
     private void OnGameStart(object userData)
@@ -35,6 +38,7 @@ public class Ads : MonoBehaviour, IUnityAdsListener
         }
         else
         {
+            Advertisement.Banner.Hide();
             StartCoroutine(ShowAdWhenReady());
         }
     }
@@ -47,36 +51,70 @@ public class Ads : MonoBehaviour, IUnityAdsListener
         }
         else
         {
+            Advertisement.Banner.Hide();
             StartCoroutine(ShowAdWhenReady());
         }
     }
 
     IEnumerator ShowAdWhenReady()
     {
-        while (!Advertisement.IsReady())
+        while (!Advertisement.isInitialized)
         {
             yield return new WaitForSeconds(0.5f);
-        }        
-        Advertisement.Show();
+        }
+        Advertisement.Load(videoAdID, this);
+        Advertisement.Show(videoAdID, this);
     }
 
-    public void OnUnityAdsReady(string placementId)
+    IEnumerator ShowBannerWhenReady()
     {
-        Debug.Log("OnUnityAdsReady: " + placementId);
+        while (!Advertisement.isInitialized)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        Advertisement.Banner.SetPosition(BannerPosition.BOTTOM_CENTER);
+        Advertisement.Banner.Load(bannerAdID);
+        Advertisement.Banner.Show(bannerAdID);
     }
 
-    public void OnUnityAdsDidError(string message)
+    void IUnityAdsLoadListener.OnUnityAdsAdLoaded(string placementId)
     {
-        Debug.Log("Unity Ads Error: " + message);
+        
     }
 
-    public void OnUnityAdsDidStart(string placementId)
+    void IUnityAdsLoadListener.OnUnityAdsFailedToLoad(string placementId, UnityAdsLoadError error, string message)
     {
-        Debug.Log("OnUnityAdsDidStart: " + placementId);
+        
     }
 
-    public void OnUnityAdsDidFinish(string placementId, ShowResult showResult)
+    void IUnityAdsInitializationListener.OnInitializationComplete()
     {
-        Debug.Log("OnUnityAdsDidFinish: " + placementId + "ShowResult: " + showResult.ToString());
+        Debug.Log("Ads initialization complete");
+    }
+
+    void IUnityAdsInitializationListener.OnInitializationFailed(UnityAdsInitializationError error, string message)
+    {
+        
+    }
+
+    void IUnityAdsShowListener.OnUnityAdsShowFailure(string placementId, UnityAdsShowError error, string message)
+    {
+        
+    }
+
+    void IUnityAdsShowListener.OnUnityAdsShowStart(string placementId)
+    {
+        
+    }
+
+    void IUnityAdsShowListener.OnUnityAdsShowClick(string placementId)
+    {
+        
+    }
+
+    void IUnityAdsShowListener.OnUnityAdsShowComplete(string placementId, UnityAdsShowCompletionState showCompletionState)
+    {
+        
     }
 }

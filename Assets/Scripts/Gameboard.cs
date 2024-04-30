@@ -44,7 +44,7 @@ public class Gameboard : MonoBehaviour
     IEnumerator SpawnCoroutine()
     {
         int currentSlotIndex = 0;
-        Player currentPlayer = manager.computerPlayer;
+        Player currentPlayer = manager.player2;
         for (int i = 0; i < 12; i++)
         {
             GameObject newGeeti = Instantiate(geetiPrefab, geetiContainer);
@@ -60,7 +60,7 @@ public class Gameboard : MonoBehaviour
             currentSlotIndex++;
             yield return new WaitForSeconds(0.1f);
         }
-        currentPlayer = manager.humanPlayer;
+        currentPlayer = manager.player1;
         currentSlotIndex++;
         for (int i = 0; i < 12; i++)
         {
@@ -84,7 +84,7 @@ public class Gameboard : MonoBehaviour
         }
         else
         {
-            BeginTurn(manager.computerPlayer);
+            BeginTurn(manager.player2);
         }
     }
 
@@ -147,53 +147,54 @@ public class Gameboard : MonoBehaviour
     private void OnEndTurn(object userData)
     {
         Player playerEndingTurn = (Player)userData;
-        if (playerEndingTurn.playerType == PlayerType.Computer)
+
+        if (playerEndingTurn == manager.player1) 
         {
-            manager.computerPlayer.playerTurn = false;
-            manager.humanPlayer.playerTurn = true;
-            BeginTurn(manager.humanPlayer);
+            manager.player2.playerTurn = true;
+            manager.player1.playerTurn = false;
+            BeginTurn(manager.player2);
         }
         else
         {
-            manager.computerPlayer.playerTurn = true;
-            manager.humanPlayer.playerTurn = false;
-            BeginTurn(manager.computerPlayer);
+            manager.player2.playerTurn = false;
+            manager.player1.playerTurn = true;
+            BeginTurn(manager.player1);
         }
     }
 
     public bool GameEndCheck()
     {
-        bool humanDefeated = true;
-        bool computerDefeated = true;
+        bool player1Defeated = true;
+        bool player2Defeated = true;
 
         for (int i = 0; i < geetis.Count; i++)
         {
-            if (computerDefeated)
+            if (player2Defeated)
             {
-                if (geetis[i].player.playerType == PlayerType.Computer)
+                if (geetis[i].player == manager.player2)
                 {
-                    computerDefeated = false;
+                    player2Defeated = false;
                 }
             }
-            if (humanDefeated)
+            if (player1Defeated)
             {
-                if (geetis[i].player.playerType == PlayerType.Human)
+                if (geetis[i].player == manager.player1)
                 {
-                    humanDefeated = false;
+                    player1Defeated = false;
                 }
             }
         }
 
-        if (humanDefeated)
+        if (player1Defeated)
         {
-            manager.humanPlayer.Defeated();
-            EventManager.TriggerEvent(EventNames.OnEndGame, manager.computerPlayer);
+            manager.player1.Defeated();
+            EventManager.TriggerEvent(EventNames.OnEndGame, manager.player2);
             return true;
         }
-        if (computerDefeated)
+        if (player2Defeated)
         {
-            manager.computerPlayer.Defeated();
-            EventManager.TriggerEvent(EventNames.OnEndGame, manager.humanPlayer);
+            manager.player2.Defeated();
+            EventManager.TriggerEvent(EventNames.OnEndGame, manager.player1);
             return true;
         }
 
@@ -202,8 +203,8 @@ public class Gameboard : MonoBehaviour
 
     public void TakeAITurn()
     {
-        manager.computerPlayer.playerTurn = true;
-        manager.humanPlayer.playerTurn = false;
-        BeginTurn(manager.computerPlayer);
+        manager.player2.playerTurn = true;
+        manager.player1.playerTurn = false;
+        BeginTurn(manager.player2);
     }
 }

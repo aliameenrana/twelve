@@ -11,6 +11,7 @@ public enum PlayerType
 
 public class Player
 {
+    public string playerName = "";
     public PlayerType playerType;
     public bool playerTurn = false;
 

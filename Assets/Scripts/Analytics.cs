@@ -19,11 +19,17 @@ public class Analytics : MonoBehaviour
 
     private void OnVictory(object userData)
     {
-        AnalyticsEvent.Custom("victory");
+        if (Manager.Instance.player1.playerType!= Manager.Instance.player2.playerType) 
+        {
+            AnalyticsEvent.Custom("victory");
+        }
     }
 
     private void OnDefeat(object userData)
     {
-        AnalyticsEvent.Custom("defeat");
+        if (Manager.Instance.player1.playerType != Manager.Instance.player2.playerType)
+        {
+            AnalyticsEvent.Custom("defeat");
+        }
     }
 }
