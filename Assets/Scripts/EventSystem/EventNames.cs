@@ -11,4 +11,5 @@
     public const string OnEndGame = "OnEndGame";
     public const string OnVictory = "OnVictory";
     public const string OnDefeat = "OnDefeat";
+    public const string OnPlayAgain = "OnPlayAgain";
 }
