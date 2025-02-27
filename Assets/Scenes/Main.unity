@@ -9016,7 +9016,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0224e45e261081d4a86c13d6629d1746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isTesting: 1
+  isTesting: 0
   bannerViewID_Test: ca-app-pub-3940256099942544/9214589741
   interstitialID_Test: ca-app-pub-3940256099942544/1033173712
   bannerViewID_Live: ca-app-pub-8838369119900775/1013070473
